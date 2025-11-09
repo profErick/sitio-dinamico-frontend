@@ -514,3 +514,4 @@ Desarrollado para el proyecto sitio-dinamico.
 **Nota**: Recuerda configurar `VITE_API_BASE_URL` correctamente según tu entorno (desarrollo o producción).
 
 # sitio-dinamico-frontend
+# sitio-dinamico-frontend
