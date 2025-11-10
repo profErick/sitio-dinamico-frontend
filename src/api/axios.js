@@ -37,10 +37,34 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response) {
       // El servidor respondió con un código de estado fuera del rango 2xx
-      const { status, data } = error.response;
+      const { status, data, headers } = error.response;
       let message = 'Ha ocurrido un error';
       
-      if (data?.message) {
+      // Si la respuesta es HTML (error de Django), intentar extraer información
+      const contentType = headers['content-type'] || '';
+      if (contentType.includes('text/html') && typeof data === 'string') {
+        // Intentar extraer el mensaje del HTML
+        const titleMatch = data.match(/<title>(.*?)<\/title>/i);
+        const h1Match = data.match(/<h1>(.*?)<\/h1>/i);
+        const pMatch = data.match(/<p>(.*?)<\/p>/i);
+        
+        if (h1Match) {
+          message = h1Match[1];
+        } else if (titleMatch) {
+          message = titleMatch[1];
+        } else if (pMatch) {
+          message = pMatch[1];
+        } else {
+          message = `Error ${status}: El servidor devolvió HTML en lugar de JSON. Esto puede indicar un problema con ALLOWED_HOSTS o CORS.`;
+        }
+        
+        console.error('⚠️ El servidor devolvió HTML en lugar de JSON');
+        console.error('Status:', status);
+        console.error('Posibles causas:');
+        console.error('1. ALLOWED_HOSTS no incluye el dominio de Railway');
+        console.error('2. CORS no está configurado correctamente');
+        console.error('3. El endpoint no existe o hay un error en el backend');
+      } else if (data?.message) {
         message = data.message;
       } else if (data?.details) {
         // Si hay detalles de validación
