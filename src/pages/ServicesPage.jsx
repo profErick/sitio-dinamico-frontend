@@ -35,9 +35,18 @@ const ServicesPage = () => {
       };
 
       const response = await servicesAPI.getAll(params);
-      setServices(response.data.results || response.data);
       
-      if (response.data.count !== undefined) {
+      // Validar que la respuesta sea un array
+      const servicesData = response.data?.results || response.data;
+      if (Array.isArray(servicesData)) {
+        setServices(servicesData);
+      } else {
+        console.error('La respuesta no es un array:', servicesData);
+        setServices([]);
+        setError('Error: La respuesta del servidor no es válida. Verifica la configuración de la API.');
+      }
+      
+      if (response.data?.count !== undefined) {
         setPagination({
           current: page,
           total: response.data.count,
@@ -45,7 +54,8 @@ const ServicesPage = () => {
         });
       }
     } catch (err) {
-      setError(err.message || 'Error al cargar los servicios');
+      setError(err.message || 'Error al cargar los servicios. Verifica que el backend esté funcionando.');
+      setServices([]); // Asegurar que siempre sea un array
       console.error('Error fetching services:', err);
     } finally {
       setLoading(false);

@@ -12,7 +12,17 @@ const ServiceList = ({ services, loading, onDelete, onEdit }) => {
     );
   }
 
-  if (!services || services.length === 0) {
+  // Validar que services sea un array
+  if (!Array.isArray(services)) {
+    return (
+      <div className="alert alert-danger text-center" role="alert">
+        <i className="bi bi-exclamation-triangle me-2"></i>
+        Error: Los datos recibidos no son válidos. Verifica la configuración de la API.
+      </div>
+    );
+  }
+
+  if (services.length === 0) {
     return (
       <div className="alert alert-info text-center" role="alert">
         <i className="bi bi-info-circle me-2"></i>
